@@ -9,7 +9,9 @@ UserSettings/
 .vs/
 *.csproj
 *.sln
+*.slnx
 *.user
+*.csproj
 
 .idea/
 
