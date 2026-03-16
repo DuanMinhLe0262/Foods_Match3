@@ -1,17 +1,29 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour
 {
-    [SerializeField] private BoardManager board;
-
     private Food selectedFood;
     private Vector2 mouseStartPos;
     private bool isDragging;
 
+    [SerializeField] private BoardManager board;
+    [SerializeField] private float dragThreshold = 0.3f;
+
+    private void Awake()
+    {
+        if (board == null)
+        {
+            Debug.LogError("BoardManager chưa được gán trong InputManager");
+        }
+    }
+
     private void Update()
     {
+        if (board == null) return;
         if (Mouse.current == null) return;
+        if (board.IsBusy) return;
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
@@ -29,29 +41,34 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    private void ResetInput()
+    {
+        selectedFood = null;
+        isDragging = false;
+    }
+
     private void OnPointerDown()
-{
-    if (board.IsBusy) return;
+    {
+        board.NotifyPlayerAction();
 
-    Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-    RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos);
 
-    if (hit.collider == null) return;
+        if (hit == null) return;
 
-    Food food = hit.collider.GetComponent<Food>();
-    if (food == null) return;
+        Food food = hit.GetComponent<Food>();
+        if (food == null) return;
 
-    selectedFood = food;
-    mouseStartPos = mouseWorldPos;
-    isDragging = true;
-}
+        selectedFood = food;
+        mouseStartPos = mouseWorldPos;
+        isDragging = true;
+    }
 
     private void OnDrag()
     {
         Vector2 currentMousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector2 dragDelta = currentMousePos - mouseStartPos;
 
-        float dragThreshold = 0.3f;
         if (dragDelta.magnitude < dragThreshold) return;
 
         Vector2Int direction = GetDragDirection(dragDelta);
@@ -60,24 +77,17 @@ public class InputManager : MonoBehaviour
         if (targetFood != null)
         {
             board.TrySwap(selectedFood, targetFood);
+            ResetInput();
         }
-
-        ResetInput();
     }
 
     private Vector2Int GetDragDirection(Vector2 dragDelta)
     {
-        if (Mathf.Abs(dragDelta.x) > Mathf.Abs(dragDelta.y))
+        if (Math.Abs(dragDelta.x) > Math.Abs(dragDelta.y))
         {
             return dragDelta.x > 0 ? Vector2Int.right : Vector2Int.left;
         }
 
         return dragDelta.y > 0 ? Vector2Int.up : Vector2Int.down;
-    }
-
-    private void ResetInput()
-    {
-        selectedFood = null;
-        isDragging = false;
     }
 }

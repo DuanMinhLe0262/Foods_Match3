@@ -151,3 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c5d49b618aed1745847ea5bee15c2ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Food
+  hintColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  hintPulseSpeed: 5
+  hintScaleAmount: 0.12
