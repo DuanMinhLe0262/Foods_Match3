@@ -38,7 +38,7 @@ public class BoardManager : MonoBehaviour
 
     private void Start()
     {
-        GenerateBoard();
+        // GenerateBoard();
     }
 
     private void Update()
@@ -465,4 +465,17 @@ private IEnumerator TrySwapRoutine(Food a, Food b)
                 DestroyImmediate(child);
         }
     }
+
+    public void StartGameBoard()
+{
+    StopAllCoroutines();
+    isBusy = false;
+
+    ClearHintMove();
+    idleTimer = 0f;
+    hintShown = false;
+
+    ClearBoard();
+    GenerateBoard();
+}
 }
